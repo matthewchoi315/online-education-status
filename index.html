@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Education Status</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header: Shows only title/subtitle for a clean dashboard (Simulator moved to settings) -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-icon">🌳</div>
+        <div class="header-title-container">
+          <h1 id="app-title">Online Education Status</h1>
+          <p>Member Education Status & Growth Management System</p>
+        </div>
+      </div>
+      
+      <!-- Invisible hint for secret settings (admin secret click zone in header background) -->
+      <div id="secret-trigger-hint" style="font-size: 11px; color: var(--text-muted); opacity: 0.3; cursor: default;" title="Click blank area 5 times for settings">
+        Secure Dashboard
+      </div>
+    </header>
+
+    <!-- 1. Dashboard View (Main Page) -->
+    <section id="dashboard-view" class="view-section active">
+      <div class="dashboard-grid" id="zones-grid">
+        <!-- Javascript will inject 6 Zone Cards here -->
+      </div>
+    </section>
+
+    <!-- 2. Zone Detail View (SPA Page) -->
+    <section id="detail-view" class="view-section">
+      <!-- Zone Detail Header Card -->
+      <div class="detail-header-card">
+        <div class="detail-title-area">
+          <button class="btn btn-outline btn-sm" id="btn-back-to-dashboard">
+            ◀ Back to List
+          </button>
+          <div class="detail-character-circle" id="detail-character-svg">
+            <!-- Selected zone character image goes here -->
+          </div>
+          <div class="detail-meta-text">
+            <div class="editable-title-wrapper">
+              <input type="text" class="input-zone-name" id="detail-zone-name" value="Eden Zone" title="Click to edit zone name">
+              <span style="font-size: 16px; cursor: pointer;" title="Click to edit">✏️</span>
+            </div>
+            <span class="stage-badge" id="detail-stage-name">Seed Stage</span>
+          </div>
+        </div>
+
+        <div class="detail-stats-bar">
+          <div class="stat-item">
+            <div class="stat-value" id="detail-progress-percent">0%</div>
+            <div class="stat-label">Progress</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="detail-member-count">0</div>
+            <div class="stat-label">Members</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="detail-completed-ratio">0/0</div>
+            <div class="stat-label">Checked Ratio</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Member Status Table -->
+      <div class="detail-table-card">
+        <div class="table-controls">
+          <div class="table-controls-left">
+            <button class="btn btn-primary btn-sm" id="btn-add-member">
+              + Add Member
+            </button>
+            <button class="btn btn-outline btn-sm" id="btn-delete-member" style="color: var(--danger); border-color: var(--danger);">
+              - Delete Member
+            </button>
+          </div>
+          <div class="table-controls-right">
+            <button class="btn btn-accent btn-sm" id="btn-add-column">
+              + Add Check Button (Topic)
+            </button>
+            <button class="btn btn-outline btn-sm" id="btn-remove-column" style="color: var(--accent-dark); border-color: var(--accent);">
+              - Remove Check Button
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-wrapper">
+          <table class="status-table" id="member-table">
+            <thead>
+              <tr id="table-header-row">
+                <th class="member-name-cell">Member Name</th>
+                <th class="course-cell">Active Course</th>
+                <th>Completion Check (Tap when completed - 8.3% step growth)</th>
+                <th style="width: 60px; text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="member-table-body">
+              <!-- Dynamically generated member rows -->
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Manual Admin Override Panel (Shown if enabled) -->
+        <div class="manual-grow-panel" id="admin-override-panel" style="display: none;">
+          <span>⚙️ Admin Override: Force Character Stage</span>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 8px;">
+            <label for="manual-stage-selector" style="font-size: 13px;">Change Growth Stage to:</label>
+            <select class="manual-stage-select" id="manual-stage-selector">
+              <option value="0">Stage 1: Seed</option>
+              <option value="1">Stage 2: Sprout</option>
+              <option value="2">Stage 3: Stem</option>
+              <option value="3">Stage 4: Small Tree</option>
+              <option value="4">Stage 5: Reading Bible</option>
+              <option value="5">Stage 6: Praying Tree</option>
+              <option value="6">Stage 7: Going Out (Bible & Bag)</option>
+              <option value="7">Stage 8: Growing Sprouts Around</option>
+              <option value="8">Stage 9: Teaching Bible</option>
+              <option value="9">Stage 10: Unified Forest</option>
+              <option value="10">Stage 11: Heavenly Clouds</option>
+              <option value="11">Stage 12: Glory of Completion</option>
+            </select>
+            <button class="btn btn-accent btn-sm" id="btn-apply-manual-stage" style="padding: 6px 12px;">Apply Override</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Settings View (SPA Page - Secret page accessible via passcode) -->
+    <section id="settings-view" class="view-section">
+      <div class="settings-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-light); padding-bottom: 12px; margin-bottom: 16px;">
+          <h2 style="margin: 0; color: var(--primary-dark);">Settings & Month Controls</h2>
+          <button class="btn btn-outline btn-sm" id="btn-settings-back">◀ Back to Dashboard</button>
+        </div>
+        
+        <!-- Month Transition Simulator (Moved from main dashboard header) -->
+        <div style="background: rgba(46, 125, 50, 0.05); padding: 18px; border-radius: var(--radius-md); border: 1px dashed var(--primary); display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px;">
+          <span style="font-weight: 700; color: var(--primary-dark); font-size: 15px;">📅 Month Settlement Control</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div class="sim-date" id="display-current-month" style="font-size: 18px; font-weight: 800; color: var(--primary-dark);">June 2026</div>
+              <div class="sim-status" id="display-ready-count" style="font-size: 12px; color: var(--text-secondary);">Real-time growth upgrades enabled</div>
+            </div>
+            <button class="btn btn-primary" id="btn-advance-month">
+              Start Next Month (Clear Checked Card)
+            </button>
+          </div>
+        </div>
+        
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title">Admin Manual Growth Override Mode</span>
+            <span class="setting-desc">Enables the manual stage picker inside the zone detail view to override character stages manually.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-admin-mode">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title">Reset Checkboxes on New Month</span>
+            <span class="setting-desc">Automatically resets all student checklist marks to false when starting a new month (growth stage remains preserved).</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-reset-on-month" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+          <span style="font-size: 14px; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 8px;">Growth History Log</span>
+          <div class="history-list" id="history-log-container">
+            <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 12px;">No historical logs recorded.</div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button class="btn btn-outline" id="btn-load-sample" style="border-color: var(--accent); color: var(--accent-dark);">
+            💡 Load Sample Demo Data
+          </button>
+          <button class="btn btn-outline" id="btn-reset-all" style="border-color: var(--danger); color: var(--danger);">
+            ⚠️ Reset All Data
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Navigation Bar (Hidden in CSS, kept for JS click references) -->
+    <nav class="footer-tabs" style="display: none !important;">
+      <button class="tab-btn active" id="tab-dashboard">
+        <span>Dashboard</span>
+      </button>
+      <button class="tab-btn" id="tab-settings">
+        <span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Growth Celebration Modal Overlay -->
+  <div class="modal-overlay" id="growth-modal">
+    <div class="modal-card">
+      <div class="modal-sparkles" id="modal-sparkles-container"></div>
+      <div class="modal-character-stage-view" id="modal-stage-svg">
+        <!-- Image will be injected here -->
+      </div>
+      <h2 class="modal-title" id="modal-title-text">Level Up! 🎉</h2>
+      <p class="modal-desc" id="modal-desc-text">Eden Zone's character grew from Seed to Sprout!</p>
+      <button class="btn btn-primary modal-close-btn" id="btn-close-modal">Celebrate Together</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
