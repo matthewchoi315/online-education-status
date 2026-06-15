@@ -136,7 +136,7 @@ function loadState() {
     try {
       state = JSON.parse(savedState);
       
-      // Make sure all zones have correct stages based on initial progress (only raise, never drop)
+      // Make sure all zones have correct stages based on initial progress (syncs with progress)
       let stateChanged = false;
       state.zones.forEach(zone => {
         const progress = calculateZoneProgress(zone);
@@ -144,7 +144,7 @@ function loadState() {
         if (zone.stage === undefined) {
           zone.stage = expectedStage;
           stateChanged = true;
-        } else if (!zone.manualStageOverride && expectedStage > zone.stage) {
+        } else if (!zone.manualStageOverride && expectedStage !== zone.stage) {
           zone.stage = expectedStage;
           stateChanged = true;
         }
@@ -405,27 +405,27 @@ function renderZoneDetails() {
         
         const newProgress = calculateZoneProgress(zone);
         
-        // Upgrades automatically based on progress (Math.min(11, Math.floor(newProgress / 8.3)))
+        // Updates automatically based on progress (Math.min(11, Math.floor(newProgress / 8.3)))
         if (!zone.manualStageOverride) {
           const calculatedStage = Math.min(11, Math.floor(newProgress / 8.3));
           
-          // Once advanced, it never drops!
-          if (calculatedStage > oldStage) {
+          if (calculatedStage !== oldStage) {
             zone.stage = calculatedStage;
             saveState();
             
             renderZoneDetails();
             
-            // Trigger instant real-time celebration if upgraded!
-            const congratsItem = [{
-              zoneName: zone.name,
-              prevStageName: STAGE_NAMES[oldStage],
-              newStageName: STAGE_NAMES[calculatedStage],
-              stageIndex: calculatedStage
-            }];
-            showCelebrationModal(congratsItem);
+            // Trigger instant real-time celebration ONLY if upgraded!
+            if (calculatedStage > oldStage) {
+              const congratsItem = [{
+                zoneName: zone.name,
+                prevStageName: STAGE_NAMES[oldStage],
+                newStageName: STAGE_NAMES[calculatedStage],
+                stageIndex: calculatedStage
+              }];
+              showCelebrationModal(congratsItem);
+            }
           } else {
-            // Keep the previous level, just update completion metrics
             updateDetailStatsOnly();
           }
         } else {
@@ -519,7 +519,7 @@ function advanceMonth() {
     
     if (!zone.manualStageOverride) {
       const calculatedStage = Math.min(11, Math.floor(progress / 8.3));
-      if (calculatedStage > zone.stage) {
+      if (calculatedStage !== zone.stage) {
         zone.stage = calculatedStage;
       }
     }
@@ -532,6 +532,9 @@ function advanceMonth() {
       zone.members.forEach(member => {
         member.completions = member.completions.map(() => false);
       });
+      if (!zone.manualStageOverride) {
+        zone.stage = 0;
+      }
     }
   });
   
