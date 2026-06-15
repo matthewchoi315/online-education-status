@@ -179,6 +179,88 @@ function initializeDefaultState() {
 
 function saveState() {
   localStorage.setItem("online_education_status_state", JSON.stringify(state));
+  if (isFirebaseConnected) {
+    try {
+      firebase.database().ref('education_state').set(state);
+    } catch (e) {
+      console.error("Firebase save failed:", e);
+    }
+  }
+}
+
+// ----------------------------------------------------
+// Firebase Sync Settings & Core Engine
+// ----------------------------------------------------
+let isFirebaseConnected = false;
+
+function initFirebase() {
+  const configStr = localStorage.getItem("online_education_status_firebase_config");
+  if (!configStr) {
+    updateFirebaseStatus("Disconnected (Local Mode)", "#c62828");
+    return;
+  }
+  
+  try {
+    const config = JSON.parse(configStr);
+    if (firebase.apps.length === 0) {
+      firebase.initializeApp(config);
+    }
+    const db = firebase.database();
+    isFirebaseConnected = true;
+    updateFirebaseStatus("Connecting...", "#ff9100");
+    
+    // Connect to database and sync
+    setupFirebaseSync(db);
+  } catch (err) {
+    console.error("Firebase initialization failed:", err);
+    updateFirebaseStatus("Error: Configuration Invalid", "#c62828");
+  }
+}
+
+function updateFirebaseStatus(text, color) {
+  const statusText = document.getElementById("firebase-status-text");
+  if (statusText) {
+    statusText.textContent = text;
+    statusText.style.color = color;
+  }
+}
+
+function setupFirebaseSync(db) {
+  const dbRef = db.ref('education_state');
+  
+  // Listen for database changes
+  dbRef.on('value', (snapshot) => {
+    updateFirebaseStatus("Connected (Realtime Sync)", "#2e7d32");
+    
+    const val = snapshot.val();
+    if (val) {
+      // Deep compare to prevent infinite loop
+      if (JSON.stringify(val) !== JSON.stringify(state)) {
+        state = val;
+        // Backup to LocalStorage
+        localStorage.setItem("online_education_status_state", JSON.stringify(state));
+        
+        // Re-render currently active view
+        const activeSection = document.querySelector(".view-section.active");
+        if (activeSection) {
+          const activeId = activeSection.id;
+          if (activeId === "dashboard-view") {
+            renderDashboard();
+          } else if (activeId === "detail-view") {
+            renderZoneDetails();
+          } else if (activeId === "settings-view") {
+            renderSettings();
+          }
+        }
+      }
+    } else {
+      // Database is empty, upload initial local state to populate it
+      dbRef.set(state);
+    }
+  }, (error) => {
+    console.error("Firebase read failed:", error);
+    updateFirebaseStatus("Database Error: Access Denied", "#c62828");
+  });
 }
 
 // Calculate progress percentage of a zone
@@ -840,6 +922,37 @@ function setupEventListeners() {
       alert("All data reset to defaults.");
     }
   });
+
+  // Firebase Config Setup
+  const configInput = document.getElementById("firebase-config-input");
+  const savedConfig = localStorage.getItem("online_education_status_firebase_config");
+  if (savedConfig && configInput) {
+    configInput.value = savedConfig;
+  }
+  
+  document.getElementById("btn-save-firebase-config").addEventListener("click", () => {
+    const val = configInput.value.trim();
+    if (!val) {
+      alert("Please paste your Firebase Configuration JSON.");
+      return;
+    }
+    try {
+      JSON.parse(val); // Validate JSON format
+      localStorage.setItem("online_education_status_firebase_config", val);
+      alert("Firebase configuration saved! Reloading application to connect...");
+      location.reload();
+    } catch (e) {
+      alert("Invalid JSON format. Please copy the complete firebaseConfig object from Firebase Console.");
+    }
+  });
+  
+  document.getElementById("btn-disconnect-firebase").addEventListener("click", () => {
+    if (confirm("Disconnect from Firebase and switch back to Local Mode?")) {
+      localStorage.removeItem("online_education_status_firebase_config");
+      alert("Disconnected! Reloading application...");
+      location.reload();
+    }
+  });
 }
 
 // ----------------------------------------------------
@@ -848,5 +961,6 @@ function setupEventListeners() {
 document.addEventListener("DOMContentLoaded", () => {
   loadState();
   setupEventListeners();
+  initFirebase(); // Try to initialize and sync Firebase
   renderDashboard();
 });

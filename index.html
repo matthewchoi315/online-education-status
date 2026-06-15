@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Online Education Status</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Firebase SDK Compatibility Libraries (v10) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -182,7 +185,33 @@
           </div>
         </div>
 
-        <div style="border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+        <!-- Firebase Configuration Section -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 20px;">
+          <span style="font-size: 14px; font-weight: 700; color: var(--primary-dark); display: block; margin-bottom: 8px;">Firebase Realtime Sync Configuration</span>
+          <div style="margin-bottom: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            To sync progress across multiple tablets, create a free project at <a href="https://console.firebase.google.com/" target="_blank" style="color: var(--primary); text-decoration: underline;">Firebase Console</a>, enable <strong>Realtime Database</strong>, and paste your config JSON below:
+          </div>
+          <textarea id="firebase-config-input" class="table-input" style="width: 100%; height: 120px; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.7); resize: vertical; box-sizing: border-box;" placeholder='{
+  "apiKey": "YOUR_API_KEY",
+  "authDomain": "YOUR_PROJECT.firebaseapp.com",
+  "databaseURL": "https://YOUR_PROJECT.firebaseio.com",
+  "projectId": "YOUR_PROJECT_ID",
+  "storageBucket": "YOUR_PROJECT.appspot.com",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'></textarea>
+          <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-sm btn-primary" id="btn-save-firebase-config">Save & Connect</button>
+              <button class="btn btn-sm btn-outline" id="btn-disconnect-firebase" style="border-color: var(--danger); color: var(--danger);">Disconnect</button>
+            </div>
+            <div id="firebase-status-badge" style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">
+              Status: <span id="firebase-status-text" style="color: #c62828;">Disconnected (Local Mode)</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
           <button class="btn btn-outline" id="btn-load-sample" style="border-color: var(--accent); color: var(--accent-dark);">
             💡 Load Sample Demo Data
           </button>
