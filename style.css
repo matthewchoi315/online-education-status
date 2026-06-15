@@ -1155,7 +1155,7 @@ input:checked + .slider:before {
   animation: prayingGlow 2.5s ease-in-out infinite;
 }
 
-/* Tablet adjustments */
+/* Responsive adjustments for Tablets and Mobile */
 @media (max-width: 768px) {
   .app-container {
     padding: 16px;
@@ -1165,26 +1165,180 @@ input:checked + .slider:before {
     padding: 16px 20px;
     flex-direction: column;
     align-items: stretch;
-    gap: 16px;
+    gap: 12px;
   }
-  .simulator-panel {
-    justify-content: space-between;
+  .header-left {
+    justify-content: center;
+  }
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  .header-title-container h1 {
+    font-size: 20px;
+  }
+  #secret-trigger-hint {
+    text-align: center;
+    padding: 4px 0;
   }
   .dashboard-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   .detail-header-card {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
+    padding: 16px;
+  }
+  .detail-title-area {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+  .editable-title-wrapper {
+    justify-content: center;
+  }
+  .input-zone-name {
+    text-align: center;
+    font-size: 22px;
+    width: 100%;
+  }
+  .detail-stats-bar {
+    width: 100%;
+    justify-content: center;
   }
   .table-controls {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
   }
   .table-controls-left, .table-controls-right {
-    justify-content: space-between;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .table-controls button {
+    flex: 1 1 auto;
+    min-width: 120px;
   }
   .circles-scroll-container {
-    max-width: 250px;
+    max-width: 300px;
+  }
+  .settings-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 12px;
+    gap: 12px;
+  }
+  .header {
+    padding: 12px 16px;
+  }
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  .header-title-container h1 {
+    font-size: 18px;
+  }
+  .header-title-container p {
+    font-size: 11px;
+  }
+  .zone-card {
+    padding: 16px;
+    gap: 12px;
+  }
+  .character-box {
+    height: 140px;
+  }
+  .character-box img {
+    max-height: 120px;
+  }
+  .zone-title {
+    font-size: 18px;
+  }
+  .zone-percentage {
+    font-size: 24px;
+  }
+  .stage-badge {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  .progress-container {
+    height: 10px;
+  }
+  .card-footer {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .member-count-badge {
+    justify-content: center;
+  }
+  .detail-header-card {
+    padding: 12px;
+  }
+  .detail-character-circle {
+    width: 64px;
+    height: 64px;
+  }
+  .detail-character-circle img {
+    max-height: 55px;
+  }
+  .detail-stats-bar {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    flex: 1 1 30%;
+    padding: 6px;
+  }
+  .stat-value {
+    font-size: 16px;
+  }
+  .stat-label {
+    font-size: 9px;
+  }
+  .detail-table-card {
+    padding: 16px;
+  }
+  .circles-scroll-container {
+    max-width: 140px;
+  }
+  .check-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+  .table-input {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  .status-table th {
+    padding: 10px;
+    font-size: 12px;
+  }
+  .status-table td {
+    padding: 8px 10px;
+  }
+  .modal-card {
+    padding: 20px;
+    width: 90%;
+  }
+  .modal-character-stage-view img {
+    max-height: 110px;
+  }
+  .modal-title {
+    font-size: 20px;
+  }
+  .modal-desc {
+    font-size: 13px;
   }
 }
