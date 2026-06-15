@@ -226,7 +226,6 @@ function initFirebase() {
   }
   
   try {
-    const config = JSON.parse(configStr);
     if (firebase.apps.length === 0) {
       firebase.initializeApp(config);
     }
