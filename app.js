@@ -936,14 +936,31 @@ function setupEventListeners() {
       alert("Please paste your Firebase Configuration JSON.");
       return;
     }
+    
+    let parsedConfig;
     try {
-      JSON.parse(val); // Validate JSON format
-      localStorage.setItem("online_education_status_firebase_config", val);
-      alert("Firebase configuration saved! Reloading application to connect...");
-      location.reload();
+      parsedConfig = JSON.parse(val);
     } catch (e) {
-      alert("Invalid JSON format. Please copy the complete firebaseConfig object from Firebase Console.");
+      // Try parsing loose javascript object notation
+      try {
+        let cleanVal = val;
+        if (cleanVal.endsWith(';')) {
+          cleanVal = cleanVal.slice(0, -1).trim();
+        }
+        parsedConfig = (new Function("return " + cleanVal))();
+        if (typeof parsedConfig !== 'object' || parsedConfig === null) {
+          throw new Error();
+        }
+      } catch (err) {
+        alert("Invalid format. Please verify you copied the config block correctly.");
+        return;
+      }
     }
+    
+    // Save as strictly formatted JSON string
+    localStorage.setItem("online_education_status_firebase_config", JSON.stringify(parsedConfig, null, 2));
+    alert("Firebase configuration saved! Reloading application to connect...");
+    location.reload();
   });
   
   document.getElementById("btn-disconnect-firebase").addEventListener("click", () => {
