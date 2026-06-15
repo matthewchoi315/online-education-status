@@ -191,11 +191,36 @@ function saveState() {
 // ----------------------------------------------------
 // Firebase Sync Settings & Core Engine
 // ----------------------------------------------------
+const EMBEDDED_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyC7YCI9WvX3EZfvZBdYBmq0GuYXK6kW21o",
+  authDomain: "online-mission-status.firebaseapp.com",
+  databaseURL: "https://online-mission-status-default-rtdb.firebaseio.com",
+  projectId: "online-mission-status",
+  storageBucket: "online-mission-status.firebasestorage.app",
+  messagingSenderId: "197249849059",
+  appId: "1:197249849059:web:720d93ecadee32d39717d6"
+};
+
 let isFirebaseConnected = false;
 
 function initFirebase() {
-  const configStr = localStorage.getItem("online_education_status_firebase_config");
-  if (!configStr) {
+  const isDisconnected = localStorage.getItem("online_education_status_firebase_disconnected") === "true";
+  
+  let config = null;
+  if (!isDisconnected) {
+    config = EMBEDDED_FIREBASE_CONFIG;
+  }
+  
+  if (!config) {
+    const configStr = localStorage.getItem("online_education_status_firebase_config");
+    if (configStr) {
+      try {
+        config = JSON.parse(configStr);
+      } catch (e) {}
+    }
+  }
+  
+  if (!config) {
     updateFirebaseStatus("Disconnected (Local Mode)", "#c62828");
     return;
   }
@@ -926,13 +951,30 @@ function setupEventListeners() {
   // Firebase Config Setup
   const configInput = document.getElementById("firebase-config-input");
   const savedConfig = localStorage.getItem("online_education_status_firebase_config");
-  if (savedConfig && configInput) {
-    configInput.value = savedConfig;
+  const isDisconnected = localStorage.getItem("online_education_status_firebase_disconnected") === "true";
+  
+  if (configInput) {
+    if (EMBEDDED_FIREBASE_CONFIG && !isDisconnected) {
+      configInput.placeholder = "System Default Config is Embedded (Active). Paste new JSON here to override...";
+      configInput.value = "";
+    } else if (savedConfig) {
+      configInput.value = savedConfig;
+    } else {
+      configInput.value = "";
+      configInput.placeholder = "Paste your Firebase configuration JSON here...";
+    }
   }
   
   document.getElementById("btn-save-firebase-config").addEventListener("click", () => {
     const val = configInput.value.trim();
     if (!val) {
+      // If empty but system has default, clear the disconnect flag to reconnect
+      if (EMBEDDED_FIREBASE_CONFIG) {
+        localStorage.removeItem("online_education_status_firebase_disconnected");
+        alert("Reconnected to Default Firebase! Reloading application...");
+        location.reload();
+        return;
+      }
       alert("Please paste your Firebase Configuration JSON.");
       return;
     }
@@ -959,6 +1001,7 @@ function setupEventListeners() {
     
     // Save as strictly formatted JSON string
     localStorage.setItem("online_education_status_firebase_config", JSON.stringify(parsedConfig, null, 2));
+    localStorage.removeItem("online_education_status_firebase_disconnected"); // clear disconnect flag
     alert("Firebase configuration saved! Reloading application to connect...");
     location.reload();
   });
@@ -966,6 +1009,7 @@ function setupEventListeners() {
   document.getElementById("btn-disconnect-firebase").addEventListener("click", () => {
     if (confirm("Disconnect from Firebase and switch back to Local Mode?")) {
       localStorage.removeItem("online_education_status_firebase_config");
+      localStorage.setItem("online_education_status_firebase_disconnected", "true");
       alert("Disconnected! Reloading application...");
       location.reload();
     }
